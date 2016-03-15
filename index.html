@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<!-- copyright 2016 Damien VINCENT -->
+<head>
+    <meta charset="utf-8">
+
+    <title>Aide à la compr&egrave;hension des fractions</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+
+
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/css/base/jquery.ui.all.css" rel="stylesheet">
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.2/css/lightness/jquery-ui-1.10.2.custom.min.css" rel="stylesheet">
+    <link href="css-circle.css" rel="stylesheet">
+
+
+    <script src="jquery.min.js"></script>
+    <script src="jquery-ui.min.js"></script>   
+    <script src="jquery.ui.touch-punch.js"></script>
+    <style type="text/css"></style>
+</head>
+
+<body style="cursor: auto;">
+
+    <div class="container">
+
+        <script>
+            var clicked = false;
+
+
+            $(function() {
+                $(".resizable").data("slice", 1).data("on", 0).resizable({
+                    aspectRatio: 1 / 1,
+                    maxHeight: 500,
+                    maxWidth: 500,
+                    minHeight: 200,
+                    minWidth: 200,
+                    resize: function(event, ui) {
+                        $("#cercle2").css("height", ui.size.height);
+                        $("#cercle2").css("width", ui.size.width);
+                    }
+                });
+
+
+                $("#plus").bind('click', function() {
+                    if (clicked) {
+                        clicked = false;
+                        $("#commands").css({
+                            "height": "150px"
+                        });
+                        $("#commands2").css({
+                            "display": "none"
+                        });
+                        $("#cercle2").css({
+                            "display": "none"
+                        });
+                    } else {
+                        clicked = true;
+                        $("#commands").css({
+                            "height": "300px"
+                        });
+                        $("#commands2").css({
+                            "display": "yes"
+                        });
+                        $("#cercle2").css({
+                            "display": "yes"
+                        });
+                    }
+                });
+
+
+            });
+
+            $(function() {
+                $(".commands").draggable();
+                $(".draggable").draggable({
+                    drag: function(event, ui) {
+                        var c1t = parseInt($("#cercle1").css("top"));
+                        var c2t = parseInt($("#cercle2").css("top"));
+                        var c1l = parseInt($("#cercle1").css("left"));
+                        var c2l = parseInt($("#cercle2").css("left"));
+                        if (Math.abs(c1l - c2l) < parseInt($("#cercle2").css("width")) && Math.abs(c1t - c2t) < parseInt($("#cercle2").css("height"))) {
+                            $("#cercle2").css("opacity", "0.5");
+                        } else {
+                            $("#cercle2").css("opacity", "1");
+                        }
+                    }
+
+                });
+
+            });
+
+            function change1(denom, num) {
+                change(denom, num, 1);
+            }
+
+            function change(denom, num, rang) {
+                var url = "http://chart.apis.google.com/chart?cht=p&chof=gif&chs=540x540&chp=-1.57&chds=a&chd=t:";
+                var chco = "&chco=";
+                var slice = num;
+                $("#denom" + rang).text(denom);
+                $("#num" + rang).text(num)
+                for (var i = 0; i < denom; i++) {
+                    url = url + "1";
+                    if (i < slice) {
+                        if (rang == 1) {
+                            chco = chco + "FF0000";
+                        } else {
+                            chco = chco + "00FF00";
+                        }
+                    } else {
+                        chco = chco + "cccccc";
+                    }
+                    if (i < (denom - 1)) {
+                        url = url + ",";
+                        chco = chco + ",";
+                    }
+                }
+                url = url + chco;
+                if (denom > 1) {
+                    $("#cercle" + rang).css("background-image", "url(" + url + ")");
+                    $("#cercle" + rang).css("background-color", "#cccccc");
+                } else {
+                    $("#cercle" + rang).css("background-image", "none");
+                    if (num == 1) {
+                        $("#cercle" + rang).css("background-color", (rang==1)?"red":"#00FF00");
+                    } else {
+                        $("#cercle" + rang).css("background-color", "#cccccc");
+                    }
+                }
+            }
+
+            $(function() {
+                $("#slideDenom1").slider({
+                    value: 1,
+                    min: 0,
+                    max: 20,
+                    slide: function(event, ui) {
+                        //alert($(this).attr("id") );   
+                        var value = ui.value;
+                        if (value == 0) return false;
+                        //$("#slideNum1").slider("option","max",value);
+                        if (value < $("#slideNum1").slider("value")) {
+                            $("#slideNum1").slider("option", "value", value)
+                        }
+                        change1(value, $("#slideNum1").slider("value"));
+
+                    }
+
+                });
+
+                $("#slideNum1").slider({
+                    value: 0,
+                    min: 0,
+                    max: 20,
+                    slide: function(event, ui) {
+                        //alert($(this).attr("id") );   
+                        var value = ui.value;
+                        if (value > $("#slideDenom1").slider("value")) return false;
+                        if (value > 0) {
+                            // change display
+                            $("#num1").css("color", "red");
+                            $("#score1>hr").css("background-color", "black")
+                        } else {
+                            $("#num1").css("color", "rgba(255,255,255, 0)");
+                            $("#score1>hr").css("background-color", "rgba(255,255,255, 0)")
+                        }
+                        change1($("#slideDenom1").slider("value"), value);
+                    }
+
+                });
+
+                $("#slideDenom2").slider({
+                    value: 1,
+                    min: 0,
+                    max: 20,
+                    slide: function(event, ui) {
+                        //alert($(this).attr("id") );   
+                        var value = ui.value;
+                        if (value == 0) return false;
+                        //$("#slideNum1").slider("option","max",value);
+                        if (value < $("#slideNum2").slider("value")) {
+                            $("#slideNum1").slider("option", "value", value)
+                        }
+                        change(value, $("#slideNum2").slider("value"), 2);
+
+                    }
+
+                });
+
+                $("#slideNum2").slider({
+                    value: 0,
+                    min: 0,
+                    max: 20,
+                    slide: function(event, ui) {
+                        //alert($(this).attr("id") );   
+                        var value = ui.value;
+                        if (value > $("#slideDenom2").slider("value")) return false;
+                        if (value > 0) {
+                            // change display
+                            $("#num2").css("color", "green");
+                            $("#score2>hr").css("background-color", "black")
+                        } else {
+                            $("#num2").css("color", "rgba(255,255,255, 0)");
+                            $("#score2>hr").css("background-color", "rgba(255,255,255, 0)")
+                        }
+                        change($("#slideDenom2").slider("value"), value, 2);
+                    }
+
+                });
+
+
+
+            });
+        </script>
+
+
+
+
+        <div>
+            <div id="container" class="draggable">
+
+                <div id="cercle1" class="circle resizable draggable">
+                    <div id="score1" class="score">
+                        <p id="num1" style="color:rgba(255,255,255,0)">0</p>
+                        <hr>
+                        <p id="denom1">1</p>
+                    </div>
+                </div>
+                <div id="cercle2" class="circle draggable" style="display:none">
+                    <div id="score2" class="score">
+                        <p id="num2" style="color:rgba(255,255,255,0)">0</p>
+                        <hr>
+                        <p id="denom2">1</p>
+                    </div>
+                </div>
+            </div>
+            <div id="commands" class="commands">
+                <p class="caption">Numérateur:</p>
+                <div id="slideNum1" class="slider"></div>
+                <p class="caption">Dénominateur:</p>
+                <div id="slideDenom1" class="slider">
+
+                </div>
+                <p id="plus" class="caption" style="align:center;padding-left:50%">==</p>
+                <div id="commands2" style="display:none">
+                    <p class="caption">Numérateur:</p>
+                    <div id="slideNum2" class="slider"></div>
+                    <p class="caption">Dénominateur:</p>
+                    <div id="slideDenom2" class="slider">
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+    </div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-4300137-5', 'auto');
+  ga('send', 'pageview');
+
+  </script>
+
+</body>
+
+</html>
